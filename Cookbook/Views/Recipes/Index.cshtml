@@ -1,0 +1,13 @@
+﻿@model IEnumerable<Recipe>
+
+	<div class="col-sm-2">
+		@foreach (var item in Model)
+		{
+			<ol>
+				<li>@item.Title</li>
+				<li>@item.Description</li>
+				<a asp-controller="Recipes" asp-action="Details" asp-route-id="@item.Id">Details</a>
+			</ol>
+		}
+	</div>
+
