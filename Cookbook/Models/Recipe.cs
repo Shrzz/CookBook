@@ -8,5 +8,11 @@ namespace Cookbook.Models
         public int Id { get; set; }
         public string Title { get; set; }
         public string Description { get; set; }
+        [Required]
+        public ApplicationUser Author { get; set; }
+
+        public List<string> Steps;
+        public List<string> Ingridients;
+        
     }
 }
