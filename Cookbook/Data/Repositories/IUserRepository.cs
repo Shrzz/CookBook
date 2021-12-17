@@ -2,7 +2,7 @@
 
 namespace Cookbook.Data.Repositories
 {
-    public interface IRecipeRepository : IRepository<Recipe>
+    public interface IUserRepository : IRepository<ApplicationUser>
     {
     }
 }

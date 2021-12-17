@@ -11,25 +11,28 @@ namespace Cookbook.Controllers
 {
     public class RecipesController : Controller
     {
+        private readonly IUserRepository _userRepository;
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly IRecipeRepository _repository;
+        private readonly IRecipeRepository _recipeRepository;
 
-        public RecipesController(IRecipeRepository repository, UserManager<ApplicationUser> userManager)
+        public RecipesController(IRecipeRepository recipeRepository, IUserRepository userRepository, UserManager<ApplicationUser> userManager)
         {
+            _recipeRepository = recipeRepository;
+            _userRepository = userRepository;
             _userManager = userManager;
-            _repository = repository;
+
         }
 
         [HttpGet]
         public IActionResult Index()
         {
-            return View(_repository.GetRecipes());
+            return View(_recipeRepository.GetAll());
         } 
 
         [HttpGet]
         public IActionResult Details(int id)
         {
-            var recipe = _repository.GetRecipe(id);
+            var recipe = _recipeRepository.GetById(id);
             if (recipe is null)
             {
                 return NotFound();
@@ -52,11 +55,13 @@ namespace Cookbook.Controllers
         {
             try
             {
-                
-                //recipe.AuthorId = User.FindFirst(ClaimTypes.NameIdentifier).Value; 
+                int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+                ApplicationUser user = _userRepository.GetById(userId);
+                recipe.Author = user;
+
                 if (ModelState.IsValid)
                 {
-                    _repository.CreateRecipe(recipe);
+                    _recipeRepository.Create(recipe);
                     return RedirectToAction("Index");
                 }
             }
@@ -72,7 +77,7 @@ namespace Cookbook.Controllers
         [HttpGet]
         public IActionResult Edit(int id)
         {
-            var recipe = _repository.GetRecipe(id);
+            var recipe = _recipeRepository.GetById(id);
             if (recipe is null)
             {
                 return NotFound();
@@ -81,27 +86,25 @@ namespace Cookbook.Controllers
             return View(recipe);
         }
 
-        //[Authorize]
-        //[HttpPost]
-        //public IActionResult Edit(int id)
-        //{
-        //    var recipe = _repository.GetRecipe(id);
-        //    if (recipe is null)
-        //    {
-        //        return NotFound();
-        //    }
+        [Authorize]
+        [HttpPost]
+        [AutoValidateAntiforgeryToken]
+        public IActionResult Edit(Recipe recipe)
+        {
+            if (ModelState.IsValid)
+            {
+                _recipeRepository.Update(recipe);
+            }
 
-        //    return View();
-        //}
+            return RedirectToAction("Index");
+        }
 
         [Authorize]
         [HttpGet]
-        public IActionResult Delete()
+        public IActionResult Delete(int id)
         {
-            return View();
+            _recipeRepository.Delete(id);
+            return RedirectToAction("Index");
         }
-
-
-
     }
 }

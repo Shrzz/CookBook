@@ -9,14 +9,18 @@ namespace Cookbook.Data
             using (var serviceScoped = app.ApplicationServices.CreateScope())
             {
                 var context = serviceScoped.ServiceProvider.GetService<ApplicationDbContext>();
+                if (context is null)
+                {
+                    throw new ArgumentNullException(nameof(context));
+                }
                 SeedData(context);
             }
         }
 
         private static void SeedData(ApplicationDbContext context)
         {
-            SeedUsers(context);
-            SeedRecipes(context);               
+            //SeedUsers(context);
+            //SeedRecipes(context);               
         }
 
         private static void SeedUsers(ApplicationDbContext context)
@@ -25,12 +29,14 @@ namespace Cookbook.Data
             {
                 var user = new ApplicationUser()
                 {
+                    Id = 1,
                     UserName = "admin@cookbook.com",
                     EmailConfirmed = true,
-                    PasswordHash = "AQAAAAEAACcQAAAAEIUn/Qqd+TGdUo6Uwv5Tc/aUrruRcVaOC3X9FgtGXO8vTDIvLv4AEL5I4ujc64U9Rg==",
-                    SecurityStamp = "HJ7T2UZGTMIFBWPI5ZELISS7NXK54A6R",
-                    ConcurrencyStamp = "48bfcd43-7d65-4ea2-b5b7-89155a00d3bd"
+                    PasswordHash = "AQAAAAEAACcQAAAAEHSfNTl/HOK/2qWeN/4E/wejl9K/6ssIS9YpBohIYYhLo1sBvsrFq388+a8000cGow==",
                 };
+
+                context.Add(user);
+                context.SaveChanges();
             }
         }
 
@@ -40,11 +46,13 @@ namespace Cookbook.Data
 
             if (!context.Recipes.Any())
             {
+#pragma warning disable CS8601 // Possible null reference assignment.
                 context.Recipes.AddRange(
-                    new Recipe() { Title = "Eggs", Description = "Tasty roasted eggs", Author = a},
-                    new Recipe() { Title = "Pizza", Description = "Pineapple pizza with extra cheese", Author = a},
+                    new Recipe() { Title = "Eggs", Description = "Tasty roasted eggs", Author = a },
+                    new Recipe() { Title = "Pizza", Description = "Pineapple pizza with extra cheese", Author = a },
                     new Recipe() { Title = "Pasta", Description = "Extra curly pasta with pepper", Author = a }
                 );
+#pragma warning restore CS8601 // Possible null reference assignment.
 
                 context.SaveChanges();
             }
