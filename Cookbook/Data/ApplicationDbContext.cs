@@ -2,7 +2,9 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using System.Security.Claims;
+using System.Text.Json;
 
 namespace Cookbook.Data
 {
@@ -19,6 +21,15 @@ namespace Cookbook.Data
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
+            builder.Entity<Recipe>().Property(p => p.Steps).HasConversion(
+                value => JsonConvert.SerializeObject(value, new JsonSerializerSettings()),
+                value => JsonConvert.DeserializeObject<List<string>>(value, new JsonSerializerSettings())
+            );
+
+            builder.Entity<Recipe>().Property(p => p.Ingridients).HasConversion(
+                value => JsonConvert.SerializeObject(value, new JsonSerializerSettings()),
+                value => JsonConvert.DeserializeObject<List<string>>(value, new JsonSerializerSettings())
+            );
         }
     }
 }
