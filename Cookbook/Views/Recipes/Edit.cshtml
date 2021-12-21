@@ -1,32 +1,157 @@
 ﻿@model Recipe
 
-<div class="col-mb-12">
-	<form asp-controller="Recipes" asp-action="Edit">
-		<div class="border p-3 mt-4">
-			<div class="row pb-2">
-				<h2 class="text-primary">
-					Edit recipe
-				</h2>
-			</div>
+<div>
+    <form asp-action="Edit">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-			<div class="mb-3">
-				<label asp-for="Title">Title</label>
-				<input asp-for="Title" class="form-control"/>
-				<span asp-validation-for="Title" class="text-danger"></span>
-			</div>
-			<div class="mb-3">
-				<label asp-for="Description">Description</label>
-				<input asp-for="Description" class="form-control"/>
-				<span asp-validation-for="Description" class="text-danger"></span>
+    <h3>General info</h3>
+    <div class="input-group mb-3">
+        <input asp-for="Title" class="form-control" placeholder="Title"/>
+        <span asp-validation-for="Title" class="text-danger"></span>
+    </div>       
+    <div class="input-group mb-3">
+        <textarea asp-for="Description" class="form-control" placeholder="Description"></textarea>
+        <span asp-validation-for="Title" class="text-danger"></span>
+    </div>
 
-			</div>
-			<button type="submit" class="btn btn-primary" style="width: 150px">Update</button>
+    <h3>Directions</h3>
+    <div class="steps-target-element">
+        <div class="input-group mb-3">
+            <textarea name="Steps[0]" class="form-control" placeholder="Step description" value="@Model.Steps[0]"></textarea>
+            <span asp-validation-for="Steps[0]" class="text-danger"></span>
+            <button class="btn btn-primary input-group-text remove-step-btn">Remove step</button>
+        </div>
 
-			<a asp-controller="Recipes" asp-action="Index" class="btn btn-secondary" style="width: 150px">
-				Back to list
-			</a>
-		</div>
-	</form>
+        @for (int i = 1; i < Model.Steps.Count; i++)
+            {
+                <div class="input-group mb-3">
+                    <textarea name="Steps[i]" class="form-control" placeholder="Step description" value="@Model.Steps[i]"></textarea>
+                    <span asp-validation-for="Steps[i]" class="text-danger"></span>
+                    <button class="btn btn-primary input-group-text remove-step-btn">Remove step</button>
+                </div>
+            }
 
+    </div>
+    <div class="input-group mb-3">
+        <button class="btn btn-primary add-step-btn">Add another step</button>
+    </div>
 
+    <h3>Ingredients list</h3>
+    <div class="row ingredients-target-element">
+        <div class="input-group mb-3">
+            <input asp-for="Ingredients[0]" class="form-control" placeholder="Required ingredient" value="@Model.Ingredients[0]"/>
+            <span asp-validation-for="Ingredients[0]" class="text-danger"></span>
+            <button class="btn btn-primary input-group-text remove-ingredient-btn">Remove ingredient</button>
+        </div>
+
+        @for (int i = 1; i < Model.Ingredients.Count; i++)
+            {
+                <div class="input-group mb-3">
+                    <input asp-for="Ingredients[i]" class="form-control" placeholder="Required ingredient" value="@Model.Ingredients[i]"/>
+                    <span asp-validation-for="Ingredients[i]" class="text-danger"></span>
+                    <button class="btn btn-primary input-group-text remove-ingredient-btn">Remove ingredient</button>
+                </div>
+            }
+
+    </div>
+    <div class="input-group mb-3">
+        <button class="btn btn-primary add-ingredient-btn">Add another ingredient</button>
+    </div>
+
+    <div class="form-group">
+        <input type="submit" value="Submit recipe" class="btn btn-primary"/>
+    </div>
+    </form>
 </div>
+
+@section Scripts{
+    <script type="text/javascript">      
+        const addStepButton = document.querySelector(".add-step-btn");
+        const addIngredientButton = document.querySelector(".add-ingredient-btn");
+
+        const stepsTargetElement = document.querySelector(".steps-target-element")
+        const ingredientsTargetElement = document.querySelector(".ingredients-target-element")
+
+        addStepButton.addEventListener("click", function (e) {
+            e.preventDefault();
+            addStepField();
+        });
+
+        addIngredientButton.addEventListener("click", function (e) {
+            e.preventDefault();
+            addIngredientField();
+        });
+
+        var removeStepsButtons = document.querySelectorAll('.remove-step-btn');
+        removeStepsButtons.forEach((element) => {
+            element.addEventListener("click", function(e) {removeStepField(e);});
+        });
+
+        var removeIngredientButtons = document.querySelectorAll('.remove-ingredient-btn');
+        removeIngredientButtons.forEach((element) => {
+            element.addEventListener("click", function(e) {removeIngredientField(e);});
+        });
+
+        function addStepField() {
+            let stepsCounter = stepsTargetElement.children.length;
+            let div = document.createElement('div');
+            div.classList = "input-group mb-3";
+            div.innerHTML = `        
+                                <textarea name="Steps[${stepsCounter}]" class="form-control" placeholder="Step description"></textarea>
+                                <span asp-validation-for="Steps[${stepsCounter}]" class="text-danger"></span>
+                            `;
+
+            let removeBtn = document.createElement('button');
+            removeBtn.classList = "btn btn-primary input-group-text remove-step-btn";
+            removeBtn.innerText = "Remove step";
+
+            removeBtn.addEventListener('click', function(e){
+                removeStepField(e);
+            })
+
+            div.appendChild(removeBtn);
+            stepsTargetElement.append(div);
+        }
+
+        function addIngredientField() {
+            let ingredientCounter = ingredientsTargetElement.children.length;
+            let div = document.createElement('div');
+            div.classList = "input-group mb-3";
+            div.innerHTML = `        
+                                <input name="Ingredients[${ingredientCounter}]" class="form-control" placeholder="Required ingredient"/>
+                                <span asp-validation-for="Ingredients[${ingredientCounter}]" class="text-danger"></span>
+                            `;
+
+            let removeBtn = document.createElement('button');
+            removeBtn.classList = "btn btn-primary input-group-text remove-ingredient-btn";
+            removeBtn.innerText = "Remove ingredient";
+
+            div.appendChild(removeBtn);
+
+            removeBtn.addEventListener('click', function (e){
+                removeIngredientField(e);
+            })
+
+            div.appendChild(removeBtn);
+            ingredientsTargetElement.append(div);
+        }
+
+        function removeIngredientField(e) {
+            e.preventDefault();
+            e.currentTarget.parentNode.remove();
+
+            if (ingredientsTargetElement.children.length == 0){
+                addIngredientField();
+            }
+        }
+
+        function removeStepField(e) {
+            e.preventDefault();
+            e.currentTarget.parentNode.remove();
+
+            if (stepsTargetElement.children.length == 0){
+                addStepField();
+            }
+        }
+    </script>
+}

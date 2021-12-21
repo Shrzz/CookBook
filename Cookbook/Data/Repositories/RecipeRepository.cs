@@ -1,4 +1,5 @@
 ﻿using Cookbook.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace Cookbook.Data.Repositories
 {
@@ -19,7 +20,7 @@ namespace Cookbook.Data.Repositories
 
         public Recipe GetById(int id)
         {
-            return _context.Recipes.FirstOrDefault(r => r.Id.Equals(id));
+            return _context.Recipes.Include(r => r.Author).FirstOrDefault(r => r.Id.Equals(id));
         }
 
         public IEnumerable<Recipe> GetAll()
@@ -47,8 +48,14 @@ namespace Cookbook.Data.Repositories
 
         public void Update(Recipe obj)
         {
-            _context.Update(obj);
+            _context.Recipes.Update(obj);
             SaveChanges();
+        }
+
+        public IEnumerable<Recipe> GetAllCreatedByUser(int id)
+        {
+            var a = _context.Recipes.Where(r => r.Author.Id == id);
+            return a;
         }
     }
 }

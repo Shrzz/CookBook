@@ -26,7 +26,7 @@ namespace Cookbook.Data
                 value => JsonConvert.DeserializeObject<List<string>>(value, new JsonSerializerSettings())
             );
 
-            builder.Entity<Recipe>().Property(p => p.Ingridients).HasConversion(
+            builder.Entity<Recipe>().Property(p => p.Ingredients).HasConversion(
                 value => JsonConvert.SerializeObject(value, new JsonSerializerSettings()),
                 value => JsonConvert.DeserializeObject<List<string>>(value, new JsonSerializerSettings())
             );

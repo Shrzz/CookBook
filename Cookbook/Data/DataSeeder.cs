@@ -72,9 +72,9 @@ namespace Cookbook.Data
                 };
 
                 context.Recipes.AddRange(
-                    new Recipe() { Title = "Eggs", Description = "Tasty roasted eggs", Author = a, Steps = steps, Ingridients = ingridients },
-                    new Recipe() { Title = "Pizza", Description = "Pineapple pizza with extra cheese", Author = a, Steps = steps, Ingridients = ingridients },
-                    new Recipe() { Title = "Pasta", Description = "Extra curly pasta with pepper", Author = a, Steps = steps, Ingridients = ingridients }
+                    new Recipe() { Title = "Eggs", Description = "Tasty roasted eggs", Author = a, Steps = steps, Ingredients = ingridients },
+                    new Recipe() { Title = "Pizza", Description = "Pineapple pizza with extra cheese", Author = a, Steps = steps, Ingredients = ingridients },
+                    new Recipe() { Title = "Pasta", Description = "Extra curly pasta with pepper", Author = a, Steps = steps, Ingredients = ingridients }
                 );
 #pragma warning restore CS8601 // Possible null reference assignment.
 

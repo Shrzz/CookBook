@@ -20,14 +20,22 @@ namespace Cookbook.Controllers
             _recipeRepository = recipeRepository;
             _userRepository = userRepository;
             _userManager = userManager;
-
         }
+
 
         [HttpGet]
         public IActionResult Index()
         {
             return View(_recipeRepository.GetAll());
-        } 
+        }
+
+        [HttpGet]
+        public IActionResult MyRecipes()
+        {
+            int id = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            var list = _recipeRepository.GetAllCreatedByUser(id);
+            return View(list);
+        }
 
         [HttpGet]
         public IActionResult Details(int id)
@@ -57,6 +65,11 @@ namespace Cookbook.Controllers
             {
                 int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
                 ApplicationUser user = _userRepository.GetById(userId);
+                if (user is null)
+                {
+                    return NotFound();
+                }
+
                 recipe.Author = user;
 
                 if (ModelState.IsValid)
@@ -104,7 +117,9 @@ namespace Cookbook.Controllers
         public IActionResult Delete(int id)
         {
             _recipeRepository.Delete(id);
-            return RedirectToAction("Index");
+            var a = Request.Headers["Referer"].ToString();
+            return Redirect(a);
         }
+
     }
 }
