@@ -14,7 +14,7 @@
                         @Model.Title
                     </h3>
                     <p class="text-seconary">
-                        21 December 2021, 12:23
+                        @(Model.CreationTime.ToShortDateString()), @(Model.CreationTime.ToShortTimeString())
                     </p>
                 </div>
                 <p class="text-muted">
@@ -65,8 +65,10 @@
         </div>
     </div>
 
-    <button asp-controller="Recipes" asp-action="Index" class="btn btn-primary">
-        To recipe list
-    </button>
+    <form asp-controller="Recipes" asp-action="Index" method="get">
+        <button class="btn btn-primary">
+            To recipe list
+        </button>
+    </form>
 </div>
 

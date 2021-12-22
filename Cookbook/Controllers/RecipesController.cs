@@ -92,10 +92,9 @@ namespace Cookbook.Controllers
                     }
                 }
 
-                rvm.Recipe.Author = user;
-                rvm.Recipe.Images = images;
+                Recipe recipe = new Recipe() { Title = rvm.Title, Description = rvm.Description, Author = user, Ingredients = rvm.Ingredients, Steps = rvm.Steps, Images = images };
 
-                _recipeRepository.Create(rvm.Recipe);
+                _recipeRepository.Create(recipe);
                 return RedirectToAction("Index");
                 
             }

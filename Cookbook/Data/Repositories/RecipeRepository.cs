@@ -14,6 +14,7 @@ namespace Cookbook.Data.Repositories
 
         public void Create(Recipe recipe)
         {
+            recipe.CreationTime = DateTime.Now;
             _context.Add(recipe);
             SaveChanges();
         }
