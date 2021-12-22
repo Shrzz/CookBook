@@ -59,10 +59,15 @@ namespace Cookbook.Controllers
         [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(Recipe recipe)
+        public IActionResult Create(RecipeViewModel rvm)
         {
             try
             {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest();
+                }
+
                 int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
                 ApplicationUser user = _userRepository.GetById(userId);
                 if (user is null)
@@ -70,20 +75,36 @@ namespace Cookbook.Controllers
                     return NotFound();
                 }
 
-                recipe.Author = user;
+                List<Image> images = new List<Image>();
 
-                if (ModelState.IsValid)
+                if (rvm.Images is not null)
                 {
-                    _recipeRepository.Create(recipe);
-                    return RedirectToAction("Index");
+                    foreach (var item in rvm.Images)
+                    {
+                        byte[] imageData = null;
+                        using (var binaryReader = new BinaryReader(item.OpenReadStream()))
+                        {
+                            imageData = binaryReader.ReadBytes((int)item.Length);
+                        }
+
+                        
+                        images.Add(new Image() { Data = imageData });
+                    }
                 }
+
+                rvm.Recipe.Author = user;
+                rvm.Recipe.Images = images;
+
+                _recipeRepository.Create(rvm.Recipe);
+                return RedirectToAction("Index");
+                
             }
             catch (Exception ex)
             {
                 ModelState.AddModelError("", "Unable to save changes");
             }
 
-            return View(recipe);
+            return View(rvm);
         }
 
         [Authorize]

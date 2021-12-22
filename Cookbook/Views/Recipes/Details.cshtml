@@ -1,88 +1,72 @@
-﻿@model Recipe
+﻿    @model Recipe
 
 <div class="container-fluid">
+    
     <!--image + description-->
-    <div class="recipe-block row">
-        <div class="col-2">
-            @{
-                //if (String.IsNullOrWhiteSpace(Model.TitleImagePath))
-                //{
-                //    <img class="recipe-detail__image-title" src="/images/no-photo.jpg" />
-                //}
-                //else
-                //{
-                //    <img class="recipe-detail__image-title" src="@Model.TitleImagePath" />
-                //}
-            }
-        </div>
-        <div class="col">
-            <h3>
-                @Model.Title
-            </h3>
-            <div class="flex-row">
-                <p class="text-secondary">
-                    @*@Model.CreationTime.ToShortDateString()*@
-                    <br />
-                    @*by @Model.Author.UserName*@
+    <div class="row">
+        @if (Model.Images is not null){
+            <div class="col-2 mb-3" style="background: url(data:image/jpeg;base64,@(Convert.ToBase64String(Model.Images.First().Data))); background-size: 100%; border-radius: 0.25rem;"></div>
+        }
+        <div class="col card mb-3 mx-3 bg-light">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <h3>
+                        @Model.Title
+                    </h3>
+                    <p class="text-seconary">
+                        21 December 2021, 12:23
+                    </p>
+                </div>
+                <p class="text-muted">
+                    @Model.Author.UserName
+                </p>
+                <p>
+                    @Model.Description
                 </p>
             </div>
-            <p>
-                @Model.Description
-            </p>
         </div>
-    </div>
-
-    <!--Image collection-->
-    <div class="row">
-@*        @foreach (var item in Model.ImagesPaths)
-        {
-            <div class="col recipe-detail__additional-images-container" style="background-image:url(@item)">
-
-            </div>
-        }*@
     </div>
 
     <!--ingridient list and directions-->
-
-
     <div class="recipe-block row">
-        @if (Model.Ingredients is not null)
-        {
-            <div class="col-4">
-                <h3>
-                    Ingredients list
-                </h3>
-                <ul class="list-group">
-                    @foreach (var item in Model.Ingredients)
+        <div class="col-4 card mb-3 bg-light">
+            <h3 class="card-header">Ingredients list</h3>
+            <div class="card-body list-group">
+                <ul>
+                    @for (var i = 0; i < @Model.Ingredients.Count; i++)
                     {
-                        <li class="d-flex justify-content-between align-items-center">
-                            <span>
-                                @item
-                            </span>
-                        </li>
-                    }
+                        <li class="d-flex">@Model.Ingredients[i]</li>
+                    }                              
                 </ul>
             </div>
-        }
-        @if (Model.Steps is not null)
-        { 
-            <div class="col">
-                <h3>
-                    Directions
-                </h3>
-                @for (int i = 0; i < Model.Steps.Count(); i++)
+        </div>
+        <div class="col">
+            <!-- images gallery-->
+            <div class="row mx-3 mb-3">
+                @for (var i = 1; i < @Model.Images.Count; i++)
                 {
-                    <h5>
-                        Step @(i + 1)
-                    </h5>
-                    <p>
-                        @Model.Steps[i]
-                    </p>
+                    <div class="col">
+                        <img class="rounded" src="data:image/jpeg;base64,@(Convert.ToBase64String(Model.Images[i].Data))" style="width: 100%; max-width: 170px; max-height: 170px;">
+                    </div>
                 }
             </div>
-        }
+            <div class="row card mx-3 mb-3 bg-light">
+                <h3 class="card-header">
+                    Directions
+                </h3>
+                <div class="card-body">
+                    @for (var i = 0; i < @Model.Steps.Count; i++)
+                    {
+                        <h5>Step @i</h5>
+                        <p>@Model.Steps[i]</p>
+                    }
+                </div>
+            </div>
+        </div>
     </div>
-    
-    <a asp-controller="Recipes" asp-action="Index">To recipe list</a>
+
+    <button asp-controller="Recipes" asp-action="Index" class="btn btn-primary">
+        To recipe list
+    </button>
 </div>
 
