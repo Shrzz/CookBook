@@ -12,17 +12,16 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 
-
 builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddEntityFrameworkStores<ApplicationDbContext>();
-
-
 
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddScoped<IRecipeRepository, RecipeRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+
 builder.Services.AddScoped<UserManager<ApplicationUser>>();
+
 
 var app = builder.Build();
 

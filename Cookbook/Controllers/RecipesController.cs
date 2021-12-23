@@ -13,10 +13,12 @@ namespace Cookbook.Controllers
     {
         private readonly IUserRepository _userRepository;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly Microsoft.AspNetCore.Hosting.IHostingEnvironment _hostingEnvironment;
         private readonly IRecipeRepository _recipeRepository;
 
-        public RecipesController(IRecipeRepository recipeRepository, IUserRepository userRepository, UserManager<ApplicationUser> userManager)
+        public RecipesController(IRecipeRepository recipeRepository, IUserRepository userRepository, UserManager<ApplicationUser> userManager, Microsoft.AspNetCore.Hosting.IHostingEnvironment hostingEnvironment)
         {
+            _hostingEnvironment = hostingEnvironment;
             _recipeRepository = recipeRepository;
             _userRepository = userRepository;
             _userManager = userManager;
@@ -75,20 +77,29 @@ namespace Cookbook.Controllers
                     return NotFound();
                 }
 
-                List<Image> images = new List<Image>();
-
+                List<string> images = new List<string>();
                 if (rvm.Images is not null)
                 {
+                    var folderPath = $"/uploads/images/recipes/{DateTime.Now.Ticks}_{rvm.Title.Replace(' ', '_')}/";
+                    var fullPath = $"{_hostingEnvironment.ContentRootPath}wwwroot/{folderPath}";
+                    if (!Directory.Exists(fullPath))
+                    {
+                        Directory.CreateDirectory(fullPath);
+                    }
+
                     foreach (var item in rvm.Images)
                     {
-                        byte[] imageData = null;
-                        using (var binaryReader = new BinaryReader(item.OpenReadStream()))
+                        var fileName = item.FileName.Replace(' ', '_');
+                        var fullFilePath = Path.Combine(_hostingEnvironment.ContentRootPath, fullPath, fileName);
+                        if (System.IO.File.Exists(fullFilePath))
                         {
-                            imageData = binaryReader.ReadBytes((int)item.Length);
+                            System.IO.File.Delete(fullFilePath);
                         }
 
-                        
-                        images.Add(new Image() { Data = imageData });
+                        item.CopyTo(new FileStream(fullFilePath, FileMode.Create));
+
+                        var filePath = Path.Combine(folderPath, fileName);
+                        images.Add(filePath);
                     }
                 }
 
@@ -140,6 +151,6 @@ namespace Cookbook.Controllers
             var a = Request.Headers["Referer"].ToString();
             return Redirect(a);
         }
-
     }
+
 }

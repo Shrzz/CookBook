@@ -12,7 +12,6 @@ namespace Cookbook.Data
     {
         public DbSet<ApplicationUser> Users { get; set; }
         public DbSet<Recipe> Recipes { get; set; }
-        public DbSet<Image> Images { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
@@ -34,8 +33,9 @@ namespace Cookbook.Data
 
             builder.Entity<Recipe>().Property(p => p.Images).HasConversion(
                 value => JsonConvert.SerializeObject(value, new JsonSerializerSettings()),
-                value => JsonConvert.DeserializeObject<List<Image>>(value, new JsonSerializerSettings())
+                value => JsonConvert.DeserializeObject<List<string>>(value, new JsonSerializerSettings())
             );
+
         }
     }
 }

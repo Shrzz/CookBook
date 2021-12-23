@@ -4,10 +4,11 @@
     
     <!--image + description-->
     <div class="row">
-        @if (Model.Images is not null){
-            <div class="col-2 mb-3" style="background: url(data:image/jpeg;base64,@(Convert.ToBase64String(Model.Images.First().Data))); background-size: 100%; border-radius: 0.25rem;"></div>
+        @if (Model.Images is not null && Model.Images.Any()){
+            <div class="col-2 mb-3 me-3" style="background: url(@Model.Images.First()); background-size: 100%; border-radius: 0.25rem;"></div>
+            
         }
-        <div class="col card mb-3 mx-3 bg-light">
+        <div class="col card mb-3 bg-light">
             <div class="card-body">
                 <div class="d-flex justify-content-between">
                     <h3>
@@ -28,36 +29,39 @@
     </div>
 
     <!--ingridient list and directions-->
-    <div class="recipe-block row">
-        <div class="col-4 card mb-3 bg-light">
-            <h3 class="card-header">Ingredients list</h3>
-            <div class="card-body list-group">
-                <ul>
-                    @for (var i = 0; i < @Model.Ingredients.Count; i++)
-                    {
-                        <li class="d-flex">@Model.Ingredients[i]</li>
-                    }                              
-                </ul>
+    <div class="row mb-3">
+        <div class="col-4">
+            <div class="row card bg-light">
+                <h3 class="card-header">Ingredients list</h3>
+                <div class="card-body">
+                        @for (var i = 0; i < @Model.Ingredients.Count; i++)
+                        {
+                            <span class="d-flex">@Model.Ingredients[i]</span>
+                        }                              
+                </div>
             </div>
         </div>
         <div class="col">
             <!-- images gallery-->
-            <div class="row mx-3 mb-3">
-                @for (var i = 1; i < @Model.Images.Count; i++)
-                {
-                    <div class="col">
-                        <img class="rounded" src="data:image/jpeg;base64,@(Convert.ToBase64String(Model.Images[i].Data))" style="width: 100%; max-width: 170px; max-height: 170px;">
-                    </div>
-                }
-            </div>
-            <div class="row card mx-3 mb-3 bg-light">
+            @if (Model.Images is not null && Model.Images.Count > 1)
+            {            
+                <div class="row mx-3 mb-3">
+                    @for (var i = 1; i < @Model.Images.Count; i++)
+                    {
+                        <div class="col">
+                            <img class="rounded" src="@Model.Images[i]" style="width: 100%; max-width: 170px; max-height: 170px;">
+                        </div>
+                    }
+                </div>
+            }
+            <div class="row card ms-3 bg-light">
                 <h3 class="card-header">
                     Directions
                 </h3>
                 <div class="card-body">
                     @for (var i = 0; i < @Model.Steps.Count; i++)
                     {
-                        <h5>Step @i</h5>
+                        <h5>Step @(i + 1)</h5>
                         <p>@Model.Steps[i]</p>
                     }
                 </div>
