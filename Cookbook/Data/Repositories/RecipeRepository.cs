@@ -26,7 +26,7 @@ namespace Cookbook.Data.Repositories
 
         public IEnumerable<Recipe> GetAll()
         {
-            return _context.Recipes;
+            return _context.Recipes.Include(r => r.Author);
         }
 
         public bool Delete(int id)
@@ -50,6 +50,9 @@ namespace Cookbook.Data.Repositories
         public void Update(Recipe obj)
         {
             _context.Recipes.Update(obj);
+            _context.Entry<Recipe>(obj).Reference(p => p.Author).IsModified = false;
+            _context.Entry<Recipe>(obj).Property(p => p.ImagesDirectory).IsModified = false;
+            _context.Entry<Recipe>(obj).Property(p => p.CreationTime).IsModified = false;
             SaveChanges();
         }
 

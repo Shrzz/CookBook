@@ -1,28 +1,27 @@
-﻿    @model Recipe
+﻿    @model RecipeViewModel
 
 <div class="container-fluid">
     
     <!--image + description-->
-    <div class="row">
-        @if (Model.Images is not null && Model.Images.Any()){
-            <div class="col-2 mb-3 me-3" style="background: url(@Model.Images.First()); background-size: 100%; border-radius: 0.25rem;"></div>
-            
+    <div class="row mb-3">
+        @if (Model.FileManager.Files is not null && Model.FileManager.Files.Any()){
+                <img class="col-2 me-3 rounded" src="@Model.FileManager.Files.First().FullName.Substring(@Model.FileManager.Files.First().FullName.LastIndexOf("\\uploads"))" style="max-width: 170px; max-height: 150px;">
         }
-        <div class="col card mb-3 bg-light">
+        <div class="col card bg-light">
             <div class="card-body">
                 <div class="d-flex justify-content-between">
                     <h3>
-                        @Model.Title
+                        @Model.Recipe.Title
                     </h3>
                     <p class="text-seconary">
-                        @(Model.CreationTime.ToShortDateString()), @(Model.CreationTime.ToShortTimeString())
+                        @(Model.Recipe.CreationTime.ToShortDateString()), @(Model.Recipe.CreationTime.ToShortTimeString())
                     </p>
                 </div>
                 <p class="text-muted">
-                    @Model.Author.UserName
+                    @Model.Recipe.Author.UserName
                 </p>
                 <p>
-                    @Model.Description
+                    @Model.Recipe.Description
                 </p>
             </div>
         </div>
@@ -31,26 +30,24 @@
     <!--ingridient list and directions-->
     <div class="row mb-3">
         <div class="col-4">
-            <div class="row card bg-light">
+            <div class="card bg-light">
                 <h3 class="card-header">Ingredients list</h3>
                 <div class="card-body">
-                        @for (var i = 0; i < @Model.Ingredients.Count; i++)
-                        {
-                            <span class="d-flex">@Model.Ingredients[i]</span>
-                        }                              
+                    @for (var i = 0; i < @Model.Recipe.Ingredients.Count; i++)
+                    {
+                        <span class="d-flex">@Model.Recipe.Ingredients[i]</span>
+                    }                              
                 </div>
             </div>
         </div>
         <div class="col">
             <!-- images gallery-->
-            @if (Model.Images is not null && Model.Images.Count > 1)
+            @if (Model.FileManager.Files is not null && Model.FileManager.Files.Length > 1)
             {            
-                <div class="row mx-3 mb-3">
-                    @for (var i = 1; i < @Model.Images.Count; i++)
+                <div class="mx-3 mb-3">
+                    @for (var i = 1; i < @Model.FileManager.Files.Length; i++)
                     {
-                        <div class="col">
-                            <img class="rounded" src="@Model.Images[i]" style="width: 100%; max-width: 170px; max-height: 170px;">
-                        </div>
+                        <img class="rounded" src="@Model.FileManager.Files[i].FullName.Substring(@Model.FileManager.Files[i].FullName.LastIndexOf("\\uploads"))" style="width: 100%; max-width: 170px; max-height: 170px;">                    
                     }
                 </div>
             }
@@ -59,10 +56,10 @@
                     Directions
                 </h3>
                 <div class="card-body">
-                    @for (var i = 0; i < @Model.Steps.Count; i++)
+                    @for (var i = 0; i < @Model.Recipe.Steps.Count; i++)
                     {
                         <h5>Step @(i + 1)</h5>
-                        <p>@Model.Steps[i]</p>
+                        <p>@Model.Recipe.Steps[i]</p>
                     }
                 </div>
             </div>

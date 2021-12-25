@@ -1,0 +1,12 @@
+﻿@if (Model.Files != null)
+{
+    foreach (FileInfo f in Model.Files)
+    {
+        <div class="col-lg-3">
+            
+            <img src="@f.FullName.Substring(@f.FullName.LastIndexOf("\\uploads"))" style="width:90%;">  
+            <div style="padding:10px;text-align:center"><a href="@Url.Action("DeleteImage","Recipes",new { fname=f.Name})">Delete</a></div>
+        </div>
+    }
+}
+<div class="clearfix"></div>

@@ -6,19 +6,19 @@
 
         <h3>General info</h3>
         <div class="input-group mb-3">
-            <input asp-for="Title" class="form-control" placeholder="Title"/>
-            <span asp-validation-for="Title" class="text-danger"></span>
+            <input asp-for="Recipe.Title" class="form-control" placeholder="Title"/>
+            <span asp-validation-for="Recipe.Title" class="text-danger"></span>
         </div>       
         <div class="input-group mb-3">
-            <textarea asp-for="Description" class="form-control" placeholder="Description"></textarea>
-            <span asp-validation-for="Description" class="text-danger"></span>
+            <textarea asp-for="Recipe.Description" class="form-control" placeholder="Description"></textarea>
+            <span asp-validation-for="Recipe.Description" class="text-danger"></span>
         </div>
     
         <h3>Ingredients list</h3>
         <div class="row ingredients-target-element">
             <div class="input-group mb-3">
-                <input name="Ingredients[0]" class="form-control" placeholder="Required ingredient"/>
-                <span asp-validation-for="Ingredients[0]" class="text-danger"></span>
+                <input name="Recipe.Ingredients[0]" class="form-control" placeholder="Required ingredient"/>
+                <span asp-validation-for="Recipe.Ingredients[0]" class="text-danger"></span>
             </div>
         </div>
         <div class="input-group mb-3">
@@ -28,8 +28,8 @@
         <h3>Directions</h3>
         <div class="steps-target-element">
             <div class="input-group mb-3">
-                <textarea name="Steps[0]" class="form-control" placeholder="Step description"></textarea>
-                <span asp-validation-for="Steps[0]" class="text-danger"></span>
+                <textarea name="Recipe.Steps[0]" class="form-control" placeholder="Step description"></textarea>
+                <span asp-validation-for="Recipe.Steps[0]" class="text-danger"></span>
             </div>
         </div>
         <div class="input-group mb-3">
@@ -38,8 +38,8 @@
 
         <div class="images-target-element">
             <div class="input-group mb-3">
-                <input name="Images" type="file" class="form-control" placeholder="Upload an image" multiple/>
-                <span asp-validation-for="Images" class="text-danger"></span>
+                <input name="FileManager.IFormFiles" type="file" class="form-control" placeholder="Upload an image" multiple/>
+                <span asp-validation-for="FileManager.IFormFiles" class="text-danger"></span>
             </div>
         </div>
 
@@ -82,8 +82,8 @@
             let div = document.createElement('div');
             div.classList = "input-group mb-3";
             div.innerHTML = `        
-                                <textarea name="Steps[${stepsCounter}]" class="form-control" placeholder="Step description"></textarea>
-                                <span asp-validation-for="Steps[${stepsCounter}]" class="text-danger"></span>
+                                <textarea name="Recipe.Steps[${stepsCounter}]" class="form-control" placeholder="Step description"></textarea>
+                                <span asp-validation-for="Recipe.Steps[${stepsCounter}]" class="text-danger"></span>
                             `;
 
             let removeBtn = document.createElement('button');
@@ -103,8 +103,8 @@
             let div = document.createElement('div');
             div.classList = "input-group mb-3";
             div.innerHTML = `        
-                                <input name="Ingredients[${ingredientCounter}]" class="form-control" placeholder="Required ingredient"/>
-                                <span asp-validation-for="Ingredients[${ingredientCounter}]" class="text-danger"></span>
+                                <input name="Recipe.Ingredients[${ingredientCounter}]" class="form-control" placeholder="Required ingredient"/>
+                                <span asp-validation-for="Recipe.Ingredients[${ingredientCounter}]" class="text-danger"></span>
                             `;
 
             let removeBtn = document.createElement('button');

@@ -2,10 +2,18 @@
 {
     public class RecipeViewModel
     {
-        public string Title { get; set; }
-        public string? Description { get; set; }
-        public List<string>? Steps { get; set; }
-        public List<string>? Ingredients { get; set; }
-        public List<IFormFile>? Images { get; set; }
+        public Recipe Recipe { get; set; }
+        public FileManagerModel? FileManager { get; set; }
+
+        public RecipeViewModel()
+        {
+
+        }
+
+        public RecipeViewModel(Recipe recipe, FileManagerModel fileManager)
+        {
+            this.Recipe = recipe;
+            this.FileManager = fileManager;
+        }
     }
 }

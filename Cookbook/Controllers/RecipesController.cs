@@ -24,6 +24,28 @@ namespace Cookbook.Controllers
             _userManager = userManager;
         }
 
+        public IActionResult Images()
+        {
+            FileManagerModel model = new FileManagerModel();
+            var userImagesPath = Path.Combine(_hostingEnvironment.WebRootPath, "uploads/images/recipes");
+            DirectoryInfo dir = new DirectoryInfo(userImagesPath);
+            FileInfo[] files = dir.GetFiles();
+            model.Files = files;
+            return View(model);
+        }
+
+        public IActionResult DeleteImage(string fname)
+        {
+            string _imageToBeDeleted = $"{_hostingEnvironment.WebRootPath}/{fname}";
+            if ((System.IO.File.Exists(fname)))
+            {
+                System.IO.File.Delete(fname);
+            }
+
+            var a = Request.Headers["Referer"].ToString();
+            return Redirect(a);
+        }
+
 
         [HttpGet]
         public IActionResult Index()
@@ -48,7 +70,8 @@ namespace Cookbook.Controllers
                 return NotFound();
             }
 
-            return View(recipe);
+            var rvm = new RecipeViewModel() { Recipe = recipe, FileManager = GetFileManager(recipe.ImagesDirectory) };
+            return View(rvm);
         }
         
         [Authorize]
@@ -77,35 +100,34 @@ namespace Cookbook.Controllers
                     return NotFound();
                 }
 
-                List<string> images = new List<string>();
-                if (rvm.Images is not null)
-                {
-                    var folderPath = $"/uploads/images/recipes/{DateTime.Now.Ticks}_{rvm.Title.Replace(' ', '_')}/";
-                    var fullPath = $"{_hostingEnvironment.ContentRootPath}wwwroot/{folderPath}";
-                    if (!Directory.Exists(fullPath))
-                    {
-                        Directory.CreateDirectory(fullPath);
-                    }
+                rvm.Recipe.Author = user;
 
-                    foreach (var item in rvm.Images)
+                var folderName = $"{DateTime.Now.Ticks}_{rvm.Recipe.Title.Replace(' ', '_')}";
+                var relativePath = Path.Combine("/uploads", "images", "recipes", folderName);
+                var fullFolderPath = Path.Combine($"{_hostingEnvironment.WebRootPath}/{relativePath}");
+
+                if (!Directory.Exists(fullFolderPath))
+                {
+                    Directory.CreateDirectory(fullFolderPath);
+                }
+                DirectoryInfo dir = new DirectoryInfo(fullFolderPath);
+
+                if (rvm.FileManager.IFormFiles is not null)
+                {
+                    foreach (var item in rvm.FileManager.IFormFiles)
                     {
-                        var fileName = item.FileName.Replace(' ', '_');
-                        var fullFilePath = Path.Combine(_hostingEnvironment.ContentRootPath, fullPath, fileName);
+                        var fullFilePath = Path.Combine(fullFolderPath, item.FileName);
                         if (System.IO.File.Exists(fullFilePath))
                         {
                             System.IO.File.Delete(fullFilePath);
                         }
 
                         item.CopyTo(new FileStream(fullFilePath, FileMode.Create));
-
-                        var filePath = Path.Combine(folderPath, fileName);
-                        images.Add(filePath);
                     }
                 }
 
-                Recipe recipe = new Recipe() { Title = rvm.Title, Description = rvm.Description, Author = user, Ingredients = rvm.Ingredients, Steps = rvm.Steps, Images = images };
-
-                _recipeRepository.Create(recipe);
+                rvm.Recipe.ImagesDirectory = relativePath;
+                _recipeRepository.Create(rvm.Recipe);
                 return RedirectToAction("Index");
                 
             }
@@ -127,20 +149,30 @@ namespace Cookbook.Controllers
                 return NotFound();
             }
 
-            return View(recipe);
+            var rvm = new RecipeViewModel() { Recipe = recipe, FileManager = GetFileManager(recipe.ImagesDirectory) };
+
+            return View(rvm);
         }
 
         [Authorize]
         [HttpPost]
         [AutoValidateAntiforgeryToken]
-        public IActionResult Edit(Recipe recipe)
+        public IActionResult Edit(RecipeViewModel rvm)
         {
             if (ModelState.IsValid)
             {
-                _recipeRepository.Update(recipe);
+                var fullFolderPath = $"{_hostingEnvironment.WebRootPath}/{rvm.Recipe.ImagesDirectory}";
+                DirectoryInfo directory = new DirectoryInfo(fullFolderPath);
+                foreach (var item in rvm.FileManager.IFormFiles)
+                {
+                    var fullFilePath = $"{fullFolderPath}/{item.FileName}";
+                    item.CopyTo(new FileStream(fullFilePath, FileMode.Create));
+                }
+
+                _recipeRepository.Update(rvm.Recipe);
             }
 
-            return RedirectToAction("Index");
+            return RedirectToAction("MyRecipes");
         }
 
         [Authorize]
@@ -148,8 +180,23 @@ namespace Cookbook.Controllers
         public IActionResult Delete(int id)
         {
             _recipeRepository.Delete(id);
-            var a = Request.Headers["Referer"].ToString();
-            return Redirect(a);
+            return RedirectToAction("MyRecipes");
+        }
+
+        private FileManagerModel GetFileManager(string imagesDirectory)
+        {
+            string fullPath = $"{ _hostingEnvironment.WebRootPath}/{imagesDirectory}";
+            FileManagerModel model = new FileManagerModel();
+            if (!Directory.Exists(fullPath))
+            {
+                Directory.CreateDirectory(fullPath);
+            }
+
+            DirectoryInfo dir = new DirectoryInfo(fullPath);
+            FileInfo[] files = dir.GetFiles();
+            model.Files = files;
+
+            return model;
         }
     }
 
