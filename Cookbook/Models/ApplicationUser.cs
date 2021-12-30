@@ -1,8 +1,9 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Cookbook.Data.Repositories;
+using Microsoft.AspNetCore.Identity;
 
 namespace Cookbook.Models
 {
-    public class ApplicationUser : IdentityUser<int>
+    public class ApplicationUser : IdentityUser<int>, IEntity
     {
     }
 }

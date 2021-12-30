@@ -10,9 +10,12 @@ namespace Cookbook.Data
 {
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, int>
     {
-        public DbSet<ApplicationUser> Users { get; set; }
         public DbSet<Recipe> Recipes { get; set; }
+        public DbSet<ApplicationUser> Users { get; set; }
+        public ApplicationDbContext()
+        {
 
+        }
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {

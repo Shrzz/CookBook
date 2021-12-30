@@ -1,11 +1,12 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Cookbook.Data.Repositories;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace Cookbook.Models
 {
-    public class Recipe
+    public class Recipe : IEntity
     {
         [Key]
         public int Id { get; set; }
@@ -16,6 +17,11 @@ namespace Cookbook.Models
         public List<string>? Ingredients { get; set; }
         public string? ImagesDirectory { get; set; }
         public DateTime CreationTime { get; set; }
+
+        public Recipe()
+        {
+            CreationTime = DateTime.Now;
+        }
 
     }
 }

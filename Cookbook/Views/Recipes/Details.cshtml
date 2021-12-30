@@ -4,8 +4,9 @@
     
     <!--image + description-->
     <div class="row mb-3">
-        @if (Model.FileManager.Files is not null && Model.FileManager.Files.Any()){
-                <img class="col-2 me-3 rounded" src="@Model.FileManager.Files.First().FullName.Substring(@Model.FileManager.Files.First().FullName.LastIndexOf("\\uploads"))" style="max-width: 170px; max-height: 150px;">
+        @if (Model.FileManager is not null && Model.FileManager.Files is not null && Model.FileManager.Files.Any()){
+            string titleImageName = @Model.FileManager.Files.First().FullName;
+            <img class="col-2 me-3 rounded" src="@titleImageName.Substring(titleImageName.LastIndexOf("\\uploads"))" style="max-width: 170px; max-height: 150px;">
         }
         <div class="col card bg-light">
             <div class="card-body">
@@ -42,7 +43,7 @@
         </div>
         <div class="col">
             <!-- images gallery-->
-            @if (Model.FileManager.Files is not null && Model.FileManager.Files.Length > 1)
+            @if (Model.FileManager is not null && Model.FileManager.Files is not null && Model.FileManager.Files.Length > 1)
             {            
                 <div class="mx-3 mb-3">
                     @for (var i = 1; i < @Model.FileManager.Files.Length; i++)

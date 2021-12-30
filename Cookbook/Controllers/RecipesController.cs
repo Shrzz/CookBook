@@ -11,41 +11,18 @@ namespace Cookbook.Controllers
 {
     public class RecipesController : Controller
     {
-        private readonly IUserRepository _userRepository;
+        private readonly UserRepository _userRepository;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly Microsoft.AspNetCore.Hosting.IHostingEnvironment _hostingEnvironment;
-        private readonly IRecipeRepository _recipeRepository;
+        private readonly RecipeRepository _recipeRepository;
 
-        public RecipesController(IRecipeRepository recipeRepository, IUserRepository userRepository, UserManager<ApplicationUser> userManager, Microsoft.AspNetCore.Hosting.IHostingEnvironment hostingEnvironment)
+        public RecipesController(RecipeRepository recipeRepository, UserRepository userRepository, UserManager<ApplicationUser> userManager, Microsoft.AspNetCore.Hosting.IHostingEnvironment hostingEnvironment)
         {
             _hostingEnvironment = hostingEnvironment;
             _recipeRepository = recipeRepository;
             _userRepository = userRepository;
             _userManager = userManager;
         }
-
-        public IActionResult Images()
-        {
-            FileManagerModel model = new FileManagerModel();
-            var userImagesPath = Path.Combine(_hostingEnvironment.WebRootPath, "uploads/images/recipes");
-            DirectoryInfo dir = new DirectoryInfo(userImagesPath);
-            FileInfo[] files = dir.GetFiles();
-            model.Files = files;
-            return View(model);
-        }
-
-        public IActionResult DeleteImage(string fname)
-        {
-            string _imageToBeDeleted = $"{_hostingEnvironment.WebRootPath}/{fname}";
-            if ((System.IO.File.Exists(fname)))
-            {
-                System.IO.File.Delete(fname);
-            }
-
-            var a = Request.Headers["Referer"].ToString();
-            return Redirect(a);
-        }
-
 
         [HttpGet]
         public IActionResult Index()
@@ -64,7 +41,7 @@ namespace Cookbook.Controllers
         [HttpGet]
         public IActionResult Details(int id)
         {
-            var recipe = _recipeRepository.GetById(id);
+            var recipe = _recipeRepository.GetById(id, "Author");
             if (recipe is null)
             {
                 return NotFound();
@@ -185,6 +162,11 @@ namespace Cookbook.Controllers
 
         private FileManagerModel GetFileManager(string imagesDirectory)
         {
+            if (imagesDirectory is null)
+            {
+                return null;
+            }
+
             string fullPath = $"{ _hostingEnvironment.WebRootPath}/{imagesDirectory}";
             FileManagerModel model = new FileManagerModel();
             if (!Directory.Exists(fullPath))

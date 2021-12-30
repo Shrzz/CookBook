@@ -2,8 +2,8 @@
 {
     public interface IRepository<T>
     {
-        public IEnumerable<T> GetAll();
-        public T? GetById(int id);
+        public IEnumerable<T> GetAll(string includedProperties = "");
+        public T? GetById(int id, string includedProperties = "");
         public void Create(T obj);
         public void Update(T obj);
         public bool Delete(int id);
