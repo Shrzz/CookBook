@@ -68,7 +68,7 @@
                 @foreach(var image in Model.FileManager.Files)
                 {
                     <img class="rounded" title="@image.Name" src="@image.FullName.Substring(@image.FullName.LastIndexOf("\\uploads"))" style="width: 100%; max-width: 170px; max-height: 170px;">
-                    <button class="btn btn-danger" asp-action="DeleteImage" asp-route-fname="@($"{image.DirectoryName}/{image.Name}")">X</button>
+                    <button class="btn btn-danger" asp-action="DeleteImage" asp-route-fileToRemove="@($"{image.DirectoryName}/{image.Name}")">X</button>
                 }
             </div>
         </div>

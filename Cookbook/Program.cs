@@ -17,14 +17,11 @@ builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.R
 
 builder.Services.AddControllersWithViews();
 
-//builder.Services.AddScoped<IRecipeRepository, RecipeRepository>();
-//builder.Services.AddScoped<IUserRepository, UserRepository>();
-
 builder.Services.AddScoped<RecipeRepository>();
 builder.Services.AddScoped<UserRepository>();
 
 builder.Services.AddScoped<UserManager<ApplicationUser>>();
-
+builder.Services.AddSingleton<FileManager>(new FileManager(builder.Environment.WebRootPath));
 
 var app = builder.Build();
 

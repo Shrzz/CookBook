@@ -1,10 +1,8 @@
-﻿using Cookbook.Data;
-using Cookbook.Data.Repositories;
+﻿using Cookbook.Data.Repositories;
 using Cookbook.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using System.Diagnostics;
 using System.Security.Claims;
 
 namespace Cookbook.Controllers
@@ -13,15 +11,15 @@ namespace Cookbook.Controllers
     {
         private readonly UserRepository _userRepository;
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly Microsoft.AspNetCore.Hosting.IHostingEnvironment _hostingEnvironment;
         private readonly RecipeRepository _recipeRepository;
+        private readonly FileManager _fileManager;
 
-        public RecipesController(RecipeRepository recipeRepository, UserRepository userRepository, UserManager<ApplicationUser> userManager, Microsoft.AspNetCore.Hosting.IHostingEnvironment hostingEnvironment)
+        public RecipesController(RecipeRepository recipeRepository, UserRepository userRepository, UserManager<ApplicationUser> userManager, FileManager fileManager)
         {
-            _hostingEnvironment = hostingEnvironment;
             _recipeRepository = recipeRepository;
             _userRepository = userRepository;
             _userManager = userManager;
+            _fileManager = fileManager;
         }
 
         [HttpGet]
@@ -47,10 +45,10 @@ namespace Cookbook.Controllers
                 return NotFound();
             }
 
-            var rvm = new RecipeViewModel() { Recipe = recipe, FileManager = GetFileManager(recipe.ImagesDirectory) };
+            var rvm = new RecipeViewModel() { Recipe = recipe, FileManager = _fileManager.GetFileManagerModel(recipe.ImagesDirectory) };
             return View(rvm);
         }
-        
+
         [Authorize]
         [HttpGet]
         public IActionResult Create()
@@ -72,6 +70,7 @@ namespace Cookbook.Controllers
 
                 int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
                 ApplicationUser user = _userRepository.GetById(userId);
+
                 if (user is null)
                 {
                     return NotFound();
@@ -79,34 +78,12 @@ namespace Cookbook.Controllers
 
                 rvm.Recipe.Author = user;
 
-                var folderName = $"{DateTime.Now.Ticks}_{rvm.Recipe.Title.Replace(' ', '_')}";
-                var relativePath = Path.Combine("/uploads", "images", "recipes", folderName);
-                var fullFolderPath = Path.Combine($"{_hostingEnvironment.WebRootPath}/{relativePath}");
+                string directoryName = _fileManager.GenerateDirectoryName(rvm.Recipe.Title);
+                rvm.Recipe.ImagesDirectory = _fileManager.UploadFiles(_fileManager.GetDirectoryRelativePath(directoryName), rvm.FileManager);
 
-                if (!Directory.Exists(fullFolderPath))
-                {
-                    Directory.CreateDirectory(fullFolderPath);
-                }
-                DirectoryInfo dir = new DirectoryInfo(fullFolderPath);
-
-                if (rvm.FileManager.IFormFiles is not null)
-                {
-                    foreach (var item in rvm.FileManager.IFormFiles)
-                    {
-                        var fullFilePath = Path.Combine(fullFolderPath, item.FileName);
-                        if (System.IO.File.Exists(fullFilePath))
-                        {
-                            System.IO.File.Delete(fullFilePath);
-                        }
-
-                        item.CopyTo(new FileStream(fullFilePath, FileMode.Create));
-                    }
-                }
-
-                rvm.Recipe.ImagesDirectory = relativePath;
                 _recipeRepository.Create(rvm.Recipe);
                 return RedirectToAction("Index");
-                
+
             }
             catch (Exception ex)
             {
@@ -126,7 +103,7 @@ namespace Cookbook.Controllers
                 return NotFound();
             }
 
-            var rvm = new RecipeViewModel() { Recipe = recipe, FileManager = GetFileManager(recipe.ImagesDirectory) };
+            var rvm = new RecipeViewModel() { Recipe = recipe, FileManager = _fileManager.GetFileManagerModel(recipe.ImagesDirectory) };
 
             return View(rvm);
         }
@@ -138,14 +115,7 @@ namespace Cookbook.Controllers
         {
             if (ModelState.IsValid)
             {
-                var fullFolderPath = $"{_hostingEnvironment.WebRootPath}/{rvm.Recipe.ImagesDirectory}";
-                DirectoryInfo directory = new DirectoryInfo(fullFolderPath);
-                foreach (var item in rvm.FileManager.IFormFiles)
-                {
-                    var fullFilePath = $"{fullFolderPath}/{item.FileName}";
-                    item.CopyTo(new FileStream(fullFilePath, FileMode.Create));
-                }
-
+                rvm.Recipe.ImagesDirectory = _fileManager.UploadFiles(rvm.Recipe.ImagesDirectory, rvm.FileManager);
                 _recipeRepository.Update(rvm.Recipe);
             }
 
@@ -156,30 +126,19 @@ namespace Cookbook.Controllers
         [HttpGet]
         public IActionResult Delete(int id)
         {
+            var entityToRemove = _recipeRepository.GetById(id);
+            _fileManager.RemoveDirectory(entityToRemove.ImagesDirectory);
             _recipeRepository.Delete(id);
             return RedirectToAction("MyRecipes");
         }
 
-        private FileManagerModel GetFileManager(string imagesDirectory)
+        public IActionResult DeleteImage(string fileToRemove)
         {
-            if (imagesDirectory is null)
-            {
-                return null;
-            }
+            _fileManager.RemoveFile(fileToRemove);
 
-            string fullPath = $"{ _hostingEnvironment.WebRootPath}/{imagesDirectory}";
-            FileManagerModel model = new FileManagerModel();
-            if (!Directory.Exists(fullPath))
-            {
-                Directory.CreateDirectory(fullPath);
-            }
-
-            DirectoryInfo dir = new DirectoryInfo(fullPath);
-            FileInfo[] files = dir.GetFiles();
-            model.Files = files;
-
-            return model;
+            var a = Request.Headers["Referer"].ToString();
+            return Redirect(a);
         }
     }
-
 }
+
