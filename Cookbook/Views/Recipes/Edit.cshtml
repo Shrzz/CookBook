@@ -63,14 +63,17 @@
                 <input name="FileManager.IFormFiles" type="file" class="form-control" placeholder="Upload an image" multiple/>
                 <span asp-validation-for="FileManager.IFormFiles" class="text-danger"></span>
             </div>
-            <h3>Currently uploaded images:</h3>
-            <div class="mb-3">
-                @foreach(var image in Model.FileManager.Files)
-                {
-                    <img class="rounded" title="@image.Name" src="@image.FullName.Substring(@image.FullName.LastIndexOf("\\uploads"))" style="width: 100%; max-width: 170px; max-height: 170px;">
-                    <button class="btn btn-danger" asp-action="DeleteImage" asp-route-fileToRemove="@($"{image.DirectoryName}/{image.Name}")">X</button>
-                }
-            </div>
+            @if (Model.FileManager.Files is not null)
+            {         
+                <h3>Currently uploaded images:</h3>
+                <div class="mb-3">
+                    @foreach(var image in Model.FileManager.Files)
+                    {
+                        <img class="rounded" title="@image.Name" src="@image.FullName.Substring(@image.FullName.LastIndexOf("\\uploads"))" style="width: 100%; max-width: 170px; max-height: 170px;">
+                        <button class="btn btn-danger" asp-action="DeleteImage" asp-route-fileToRemove="@($"{image.DirectoryName}/{image.Name}")">X</button>
+                    }
+                </div>
+            }
         </div>
 
         <div class="form-group">

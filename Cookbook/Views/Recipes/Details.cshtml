@@ -2,28 +2,46 @@
 
 <div class="container-fluid">
     
+@*    <div class="list-group mb-2">
+		<a class="list-group-item list-group-item-action flex-column align-items-start">
+			<div class="d-flex justify-content-between align-items-center">
+				<div class="d-flex flex-column">
+					<h5 class="mb-1">@item.Title</h5>
+					<small>@item.CreationTimeFormattedString</small>
+					<p class="mb-1">@item.Description</p>
+				</div>
+				<div style="max-width:100px">
+					<img class="img-fluid" src="@imagePath">
+				<div>
+			</div>
+		</a>
+	</div>		*@
+
     <!--image + description-->
-    <div class="row mb-3">
-        @if (Model.FileManager.Files is not null && Model.FileManager.Files.Any()){
-            string titleImageName = @Model.FileManager.Files.First().FullName;
-            <img class="col-2 me-3 rounded" src="@titleImageName.Substring(titleImageName.LastIndexOf("\\uploads"))" style="max-width: 170px; max-height: 150px;">
-        }
-        <div class="col card bg-light">
-            <div class="card-body">
-                <div class="d-flex justify-content-between">
+    <div class="mb-3">
+        <div class="col card bg-light flex-column">
+            <div class="card-body d-flex justify-content-start align-items-center">
+                @if (Model.FileManager.Files is not null && Model.FileManager.Files.Any())
+                {
+                    string titleImageName = @Model.FileManager.Files.First().FullName;
+                    <div class="" style="max-width:150px">
+                        <img class="img-fluid rounded" src="@titleImageName.Substring(titleImageName.LastIndexOf("\\uploads"))" style="max-width: 170px; max-height: 150px;">
+                    </div>
+                }  
+                <div class="d-flex flex-column ms-3">
                     <h3>
                         @Model.Recipe.Title
                     </h3>
                     <p class="text-seconary">
                         @(Model.Recipe.CreationTime.ToShortDateString()), @(Model.Recipe.CreationTime.ToShortTimeString())
                     </p>
+                    <p class="text-muted">
+                        @Model.Recipe.Author.UserName
+                    </p>
+                    <p>
+                        @Model.Recipe.Description
+                    </p>
                 </div>
-                <p class="text-muted">
-                    @Model.Recipe.Author.UserName
-                </p>
-                <p>
-                    @Model.Recipe.Description
-                </p>
             </div>
         </div>
     </div>
@@ -48,7 +66,9 @@
                 <div class="mx-3 mb-3">
                     @for (var i = 1; i < @Model.FileManager.Files.Length; i++)
                     {
-                        <img class="rounded" src="@Model.FileManager.Files[i].FullName.Substring(@Model.FileManager.Files[i].FullName.LastIndexOf("\\uploads"))" style="width: 100%; max-width: 170px; max-height: 170px;">                    
+                        string imagePath = Model.FileManager.Files[i].FullName.Substring(@Model.FileManager.Files[i].FullName.LastIndexOf("\\uploads"));
+                                               
+                        <img class="rounded" src="@imagePath" style="width: 100%; max-width: 170px; max-height: 170px;">
                     }
                 </div>
             }
@@ -66,11 +86,5 @@
             </div>
         </div>
     </div>
-
-    <form asp-controller="Recipes" asp-action="MyRecipes" method="get">
-        <button class="btn btn-primary">
-            To recipe list
-        </button>
-    </form>
 </div>
 

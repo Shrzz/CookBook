@@ -20,7 +20,7 @@ namespace Cookbook.Models
 
         public Recipe()
         {
-            CreationTime = DateTime.Now;
+            CreationTime = DateTime.UtcNow;
         }
 
     }

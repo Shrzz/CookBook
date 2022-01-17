@@ -1,18 +1,62 @@
-﻿@model IEnumerable<Recipe>
+﻿@model PaginatedList<RecipeIndexModel>
 
-	<div class="container-fluid">
-		@foreach (var item in Model)
-		{
-			<div class="list-group">
-				<a asp-controller="Recipes" asp-action="Details" asp-route-id="@item.Id" class="list-group-item list-group-item-action flex-column align-items-start">
-					<div class="d-flex justify-content-between">
-						 <h5 class="mb-1">@item.Title</h5>
-						 <small>3 days ago</small>
-					</div>
-					<p class="mb-1">@item.Description</p>
-				</a>
-			</div>
+<div class="container-fluid">
+	<div class="mb-3">
+		<form asp-action="Index" method="get" class="d-flex">
+			<input type="text" name="SearchString" value="@ViewData["CurrentFilter"]" class="form-control me-sm-2" placeholder="Find a recipe"/>
+			<input type="submit" value="Search" class="btn btn-secondary my-2 my-sm-0">		
+		</form>
+		@if (ViewData["CurrentFilter"] != null){
+			<a asp-action="Index">Clear search</a>
 		}
 	</div>
 
+	@foreach (var item in Model)
+	{
+		<div class="list-group mb-2 ">						
+			<div class="d-flex justify-content-between list-group-item list-group-item-action" >
+				<div class="d-flex flex-column" style="height:100%">
+					<a asp-controller="Recipes" asp-action="Details" asp-route-id="@item.Id" class="flex-column align-items-start text-primary" style="text-decoration:none">
+						<h5 class="mb-1">@item.Title</h5>
+						<small class="text-secondary">by @item.AuthorName</small><br>
+						<small class="text-secondary">@item.CreationTimeFormattedString</small>
+						<p class="mb-1">@item.Description</p>	
+					</a>
+				</div>
+				<div class="justify-content-end" style="max-width:100px">
+					@if (@item.Image != null){
+						string imagePath = @item.Image.FullName.Substring(@item.Image.FullName.LastIndexOf("\\uploads"));
+						<img class="img-fluid" src="@imagePath">
+					}
+				</div>
+			</div>
+		</div>	
 
+	}
+
+	@{
+		var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
+		var nextDisabled = !Model.HasNextPage ? "disabled" : "";
+	}
+
+	<div>
+		<ul class="pagination">
+			<li class="page-item @prevDisabled">
+				<a asp-action="Index"
+					asp-route-pageNumber="@(Model.PageIndex - 1)"
+					asp-route-currentFilter="@ViewData["CurrentFilter"]"
+					class="page-link">
+					&laquo;
+				</a>
+			</li>
+			<li class="page-item @nextDisabled">
+				<a asp-action="Index"
+					asp-route-pageNumber="@(Model.PageIndex + 1)"
+					asp-route-currentFilter="@ViewData["CurrentFilter"]"
+					class="page-link">
+					&raquo;	
+				</a>
+			</li>
+		</ul>
+	</div>
+</div>

@@ -7,7 +7,7 @@
 
         public FileManager(string webRootPath)
         {
-            _webRootPath = webRootPath;
+            _webRootPath = webRootPath;            
         }
 
         // create new directory in file system and return relative path to it
@@ -60,6 +60,20 @@
 
             return model;
         }
+
+        public FileInfo? GetSingleImageFromDirectory(string imagesDirectory)
+        {
+            if (String.IsNullOrWhiteSpace(imagesDirectory))
+            {
+                return null;
+            }
+
+            EnsureDirectoryCreated(imagesDirectory);
+
+            DirectoryInfo dir = new DirectoryInfo($"{_webRootPath}/{imagesDirectory}");
+            return dir.GetFiles().FirstOrDefault();
+        }
+
 
         // remove directory by its relative path
         public bool RemoveDirectory(string directoryRelativePath)

@@ -18,7 +18,7 @@ namespace Cookbook.Data.Repositories
             SaveChanges();
         }
 
-        public virtual IEnumerable<TEntity> GetAll(string includedProperties = "")
+        public virtual IQueryable<TEntity> GetAll(string includedProperties = "")
         {
             IQueryable<TEntity> query = _context.Set<TEntity>();
             foreach (var includeProperty in includedProperties.Split
@@ -27,7 +27,7 @@ namespace Cookbook.Data.Repositories
                 query = query.Include(includeProperty);
             }
 
-            return query.ToList();
+            return query;
         }
 
         public virtual TEntity? GetById(int id, string includedProperties = "")

@@ -2,7 +2,7 @@
 {
     public interface IRepository<T>
     {
-        public IEnumerable<T> GetAll(string includedProperties = "");
+        public IQueryable<T> GetAll(string includedProperties = "");
         public T? GetById(int id, string includedProperties = "");
         public void Create(T obj);
         public void Update(T obj);

@@ -20,11 +20,5 @@ namespace Cookbook.Data.Repositories
             _context.Entry<Recipe>(obj).Property(p => p.CreationTime).IsModified = false;
             SaveChanges();
         }
-
-        public IEnumerable<Recipe> GetAllCreatedByUser(int id)
-        {
-            var a = _context.Recipes.Where(r => r.Author.Id == id);
-            return a;
-        }
     }
 }

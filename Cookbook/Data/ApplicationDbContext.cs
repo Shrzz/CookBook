@@ -33,12 +33,6 @@ namespace Cookbook.Data
                 value => JsonConvert.SerializeObject(value, new JsonSerializerSettings()),
                 value => JsonConvert.DeserializeObject<List<string>>(value, new JsonSerializerSettings())
             );
-
-            //builder.Entity<Recipe>().Property(p => p.Images).HasConversion(
-            //    value => JsonConvert.SerializeObject(value, new JsonSerializerSettings()),
-            //    value => JsonConvert.DeserializeObject<List<string>>(value, new JsonSerializerSettings())
-            //);
-
         }
     }
 }

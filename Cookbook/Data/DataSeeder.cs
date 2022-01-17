@@ -28,11 +28,13 @@ namespace Cookbook.Data
                 throw new ArgumentNullException(nameof(userManager));
             }
 
+
             SeedUsers(context, userManager);
             SeedRecipes(context);
+
         }
 
-        private static void SeedUsers(ApplicationDbContext context, UserManager<ApplicationUser> um)
+        private static void SeedUsers(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
         {
             if (!context.Users.Any())
             {
@@ -41,7 +43,7 @@ namespace Cookbook.Data
                     UserName = "admin@cookbook.com",
                     EmailConfirmed = true,
                 };
-                um.AddPasswordAsync(user, "aDMIN11_");
+                userManager.AddPasswordAsync(user, "aDMIN11_");
 
                 context.Add(user);
                 context.SaveChanges();
@@ -59,9 +61,7 @@ namespace Cookbook.Data
                 {
                     "boil water",
                     "add ingridients",
-                    "wait",
-                    "???",
-                    "profit"
+                    "wait for end",
                 };
 
                 var ingridients = new List<string>
@@ -72,14 +72,40 @@ namespace Cookbook.Data
                 };
 
                 context.Recipes.AddRange(
-                    new Recipe() { Title = "Eggs", Description = "Tasty roasted eggs", Author = a, Steps = steps, Ingredients = ingridients },
-                    new Recipe() { Title = "Pizza", Description = "Pineapple pizza with extra cheese", Author = a, Steps = steps, Ingredients = ingridients },
-                    new Recipe() { Title = "Pasta", Description = "Extra curly pasta with pepper", Author = a, Steps = steps, Ingredients = ingridients }
+                    new Recipe() 
+                    { 
+                        Title = "Eggs", 
+                        Description = "Tasty roasted eggs", 
+                        Author = a, 
+                        Steps = steps, 
+                        Ingredients = ingridients,
+                        CreationTime = DateTime.UtcNow
+                    },
+                    new Recipe()
+                    { 
+                        Title = "Pizza", 
+                        Description = "Pineapple pizza with extra cheese", 
+                        Author = a, 
+                        Steps = steps, 
+                        Ingredients = ingridients,
+                        CreationTime = DateTime.UtcNow
+                    },
+                    new Recipe() 
+                    { 
+                        Title = "Pasta", 
+                        Description = "Extra curly pasta with pepper", 
+                        Author = a, 
+                        Steps = steps, 
+                        Ingredients = ingridients,
+                        CreationTime = DateTime.UtcNow
+                    }
                 );
 #pragma warning restore CS8601 // Possible null reference assignment.
 
                 context.SaveChanges();
             }
         }
+
+
     }
 }
