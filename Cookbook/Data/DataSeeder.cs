@@ -6,44 +6,57 @@ namespace Cookbook.Data
 {
     public class DataSeeder
     { 
-        public static void InitializeDataSeeding(IApplicationBuilder app)
+        public async static Task InitializeDataSeeding(IApplicationBuilder app)
         {
             using (var serviceScope = app.ApplicationServices.CreateScope())
             {
-                SeedData(serviceScope);
+                await SeedData(serviceScope);
             }
         }
 
-        private static void SeedData(IServiceScope serviceScope)
+        private async static Task SeedData(IServiceScope serviceScope)
         {
-            var context = serviceScope.ServiceProvider.GetService<ApplicationDbContext>();
-            if (context is null)
+            using (var context = serviceScope.ServiceProvider.GetService<ApplicationDbContext>())
             {
-                throw new ArgumentNullException(nameof(context));
+                var userManager = serviceScope.ServiceProvider.GetService<UserManager<ApplicationUser>>();
+                if (userManager is null)
+                {
+                    throw new ArgumentNullException(nameof(userManager));
+                }
+
+                var roleManager = serviceScope.ServiceProvider.GetService<RoleManager<ApplicationRole>>();
+                if (roleManager is null)
+                {
+                    throw new ArgumentNullException(nameof(roleManager));
+                }
+
+                await SeedUsers(context, userManager, roleManager);
+                //SeedRecipes(context);
             }
-
-            var userManager = serviceScope.ServiceProvider.GetService<UserManager<ApplicationUser>>();
-            if (userManager is null)
-            {
-                throw new ArgumentNullException(nameof(userManager));
-            }
-
-
-            SeedUsers(context, userManager);
-            SeedRecipes(context);
-
         }
 
-        private static void SeedUsers(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
+        private async static Task SeedUsers(ApplicationDbContext context, UserManager<ApplicationUser> userManager, RoleManager<ApplicationRole> roleManager)
         {
-            if (!context.Users.Any())
+            if (roleManager.Roles.Any())
+            {
+                ApplicationRole role = new ApplicationRole("admin");
+                await roleManager.CreateAsync(role);
+            }
+
+            if (context.Users.Any())
             {
                 var user = new ApplicationUser()
                 {
                     UserName = "admin@cookbook.com",
+                    NormalizedUserName = "ADMIN@COOKBOOK.COM",
+                    Email = "admin@cookbook.com",
+                    NormalizedEmail = "ADMIN@COOKBOOK.COM",
                     EmailConfirmed = true,
+                        
                 };
-                userManager.AddPasswordAsync(user, "aDMIN11_");
+
+                await userManager.AddPasswordAsync(user, "aDMIN11_");
+                await userManager.AddToRoleAsync(user, "admin");
 
                 context.Add(user);
                 context.SaveChanges();

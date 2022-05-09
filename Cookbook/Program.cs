@@ -52,6 +52,7 @@ app.MapControllerRoute(
     pattern: "{controller=Recipes}/{action=Index}/{id?}");
 app.MapRazorPages();
 
-DataSeeder.InitializeDataSeeding(app);
+await DataSeeder.InitializeDataSeeding(app);
+
 
 app.Run();

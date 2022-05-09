@@ -14,8 +14,8 @@ namespace Cookbook.Data
         public DbSet<ApplicationUser> Users { get; set; }
         public ApplicationDbContext()
         {
-
         }
+
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {
@@ -24,6 +24,10 @@ namespace Cookbook.Data
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
+            //builder.Entity<Applica>().ToTable();
+
+            //builder.Entity<Recipe>().HasData(new );
+
             builder.Entity<Recipe>().Property(p => p.Steps).HasConversion(
                 value => JsonConvert.SerializeObject(value, new JsonSerializerSettings()),
                 value => JsonConvert.DeserializeObject<List<string>>(value, new JsonSerializerSettings())
