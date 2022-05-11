@@ -37,13 +37,13 @@ namespace Cookbook.Data
 
         private async static Task SeedUsers(ApplicationDbContext context, UserManager<ApplicationUser> userManager, RoleManager<ApplicationRole> roleManager)
         {
-            if (roleManager.Roles.Any())
+            if (!roleManager.Roles.Any())
             {
                 ApplicationRole role = new ApplicationRole("admin");
                 await roleManager.CreateAsync(role);
             }
 
-            if (context.Users.Any())
+            if (!context.Users.Any())
             {
                 var user = new ApplicationUser()
                 {

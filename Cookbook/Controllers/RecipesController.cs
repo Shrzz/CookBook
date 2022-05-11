@@ -15,12 +15,14 @@ namespace Cookbook.Controllers
 
         private readonly UserRepository _userRepository;
         private readonly RecipeRepository _recipeRepository;
+        private readonly LikeRepository _likeRepository;
         private readonly FileManager _fileManager;
 
-        public RecipesController(RecipeRepository recipeRepository, UserRepository userRepository, FileManager fileManager)
+        public RecipesController(RecipeRepository recipeRepository, UserRepository userRepository, LikeRepository likeRepository, FileManager fileManager)
         {
             _recipeRepository = recipeRepository;
             _userRepository = userRepository;
+            _likeRepository = likeRepository;
             _fileManager = fileManager;
         }
 
@@ -34,9 +36,9 @@ namespace Cookbook.Controllers
         [Route("Recipes/User/")]
         public async Task<IActionResult> User(string currentFilter, string searchString, int? pageNumber)
         {
-            var userId = int.Parse(base.User.FindFirstValue(ClaimTypes.NameIdentifier));
+            var user = GetCurrentUser();
 
-            return View(GetSortedRecipesList(currentFilter, searchString, pageNumber, userId));
+            return View(GetSortedRecipesList(currentFilter, searchString, pageNumber, user.Id));
         }
 
         [HttpGet]
@@ -48,7 +50,7 @@ namespace Cookbook.Controllers
 
         [HttpGet]
         [AllowAnonymous]
-        public IActionResult Details(int id)
+        public async Task<IActionResult> Details(int id)
         {
             var recipe = _recipeRepository.GetById(id, "Author");
             if (recipe is null)
@@ -58,6 +60,14 @@ namespace Cookbook.Controllers
 
             var rvm = new RecipeViewModel() { Recipe = recipe, FileManager = _fileManager.GetFileManagerModel(recipe.ImagesDirectory) };
             return View(rvm);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Liked(string currentFilter, string searchString, int? pageNumber)
+        {
+            var user = GetCurrentUser();
+
+            return View(GetSortedRecipesList(currentFilter, searchString, pageNumber, user.Id, true));
         }
 
         [HttpGet]
@@ -77,12 +87,7 @@ namespace Cookbook.Controllers
                     return BadRequest();
                 }
 
-                int userId = int.Parse(base.User.FindFirstValue(ClaimTypes.NameIdentifier));
-                ApplicationUser user = _userRepository.GetById(userId);
-                if (user is null)
-                {
-                    return NotFound();
-                }
+                var user = GetCurrentUser();
 
                 rvm.Recipe.Author = user;
 
@@ -172,7 +177,7 @@ namespace Cookbook.Controllers
             return await PaginatedList<Recipe>.CreateAsync(recipes, pageNumber ?? 1, pageSize);
         }
 
-        public PaginatedList<RecipeIndexModel> GetSortedRecipesList(string currentFilter, string searchString, int? pageNumber, int? userId = null)
+        public PaginatedList<RecipeIndexModel> GetSortedRecipesList(string currentFilter, string searchString, int? pageNumber, int? userId = null, bool likedOnly = false)
         {
             if (searchString != null)
             {
@@ -185,10 +190,16 @@ namespace Cookbook.Controllers
             }
 
             var recipes = _recipeRepository.GetAll("Author");
+
             if (userId != null)
             {
                 recipes = recipes.Where(r => r.Author.Id == userId);
                 ViewData["TargetUser"] = userId;
+                if (likedOnly)
+                {
+                    var likedByUser = _likeRepository.GetAllUserLiked((int)userId);
+                    recipes = recipes.Join(likedByUser, r => r.Id, l => l.RecipeId, (r, l) => r);
+                }
             }
 
             if (!String.IsNullOrEmpty(searchString))
@@ -196,21 +207,48 @@ namespace Cookbook.Controllers
                 recipes = recipes.Where(r => r.Title.Contains(searchString));
             }
 
+            var user = GetCurrentUser();
+
             var list = new List<RecipeIndexModel>();
-            foreach (var item in recipes)
+            foreach (var recipe in recipes)
             {
-                var r = new RecipeIndexModel(item.Id, item.Title, item.Description, item.CreationTime, item.Author.UserName, _fileManager.GetSingleImageFromDirectory(item.ImagesDirectory));
+                bool isLiked = _likeRepository.IsLikedByUser(user.Id, recipe.Id);
+                var image = _fileManager.GetSingleImageFromDirectory(recipe.ImagesDirectory);
+                var r = new RecipeIndexModel(recipe.Id, recipe.Title, recipe.Description, recipe.CreationTime, recipe.Author.UserName, image, isLiked);
                 list.Add(r);
             }
 
             return PaginatedList<RecipeIndexModel>.Create(list, pageNumber ?? 1, pageSize);
+        }
 
+        public async Task Like(int recipeId)
+        {
+            var user = GetCurrentUser();
+            Recipe recipe = _recipeRepository.GetById(recipeId);
+            var like = new Like(user, recipe);
+
+            if (_likeRepository.IsLikedByUser(user.Id, recipeId))
+            {
+                _likeRepository.Delete(user.Id, recipe.Id);
+            }
+            else
+            {
+                _likeRepository.Create(like);
+            }
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
+
+        private ApplicationUser GetCurrentUser()
+        {
+            int userId = int.Parse(base.User.FindFirstValue(ClaimTypes.NameIdentifier));
+            ApplicationUser user = _userRepository.GetById(userId);
+
+            return user;
         }
     }
 }

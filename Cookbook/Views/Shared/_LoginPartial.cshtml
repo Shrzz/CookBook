@@ -9,6 +9,9 @@
         <a class="nav-link" asp-controller="Recipes" asp-action="User" asp-route-userId="" title="Manage your recipes">My recipes</a>
     </li>
     <li class="nav-item">
+        <a class="nav-link" asp-controller="Recipes" asp-action="Liked" title="Look through your liked recipes">Liked</a>
+    </li>
+    <li class="nav-item">
         <a class="nav-link" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage your account">My account</a>
     </li>
     @if (User.IsInRole("admin"))

@@ -1,0 +1,99 @@
+﻿@using Microsoft.AspNetCore.Identity
+@inject UserManager<ApplicationUser> UserManager
+@model PaginatedList<RecipeIndexModel>
+
+@{
+	var UserId = UserManager.GetUserId(User);
+	bool IsUserList = false;
+		if (ViewData["TargetUser"] != null)
+		{
+			IsUserList = true;
+		}
+}
+	<div class="container-fluid">
+		@if (IsUserList && Model.FirstOrDefault() != null)
+		{
+			<h2>Recipe list of @Model.FirstOrDefault().AuthorName</h2>
+		}
+
+		<div class="mb-3">
+			<form asp-action="Index" asp-route-userId="@UserId" method="get" class="d-flex">
+				<input type="text" name="SearchString" value="@ViewData["CurrentFilter"]" class="form-control me-sm-2" placeholder="Find a recipe"/>
+				<input type="submit" value="Search" class="btn btn-secondary my-2 my-sm-0">		
+				@if (IsUserList)
+				{
+					<input type="hidden" name="userId" value="@ViewData["TargetUser"]">
+				}
+			</form>
+			@if (ViewData["CurrentFilter"] != null){
+				<a asp-action="User" asp-route-userId="@UserId">Clear search</a>
+			}
+		</div>
+
+		@foreach (var item in Model)
+		{
+			var likeButtonClass = item.Liked ? "button-like press" : "button-like";
+			<div class="list-group mb-2 ">						
+				<div class="d-flex justify-content-between list-group-item list-group-item-action" >
+					<div class="d-flex flex-column" style="height:100%">
+						<a asp-controller="Recipes" asp-action="Details" asp-route-id="@item.Id" class="flex-column align-items-start text-primary" style="text-decoration:none">
+							<h5 class="mb-1">@item.Title</h5>
+							<small class="text-secondary">by @item.AuthorName</small><br>
+							<small class="text-secondary">@item.CreationTimeFormattedString</small>
+							<p class="mb-1">@item.Description</p>	
+						</a>
+							<div asp-route-id="@item.Id" class="@likeButtonClass" onclick="like(this)">
+							like
+						</div>
+					</div>
+					<div class="justify-content-end" style="max-width:100px">
+						@if (@item.Image != null){
+							string imagePath = @item.Image.FullName.Substring(@item.Image.FullName.LastIndexOf("\\uploads"));
+							<img class="img-fluid" src="@imagePath">
+						}
+					</div>
+				</div>
+			</div>	
+
+		}
+
+		@{
+			var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
+			var nextDisabled = !Model.HasNextPage ? "disabled" : "";
+		}
+
+		<div>
+			<ul class="pagination">
+				<li class="page-item @prevDisabled">
+					<a asp-action="Index"
+						asp-route-pageNumber="@(Model.PageIndex - 1)"
+						asp-route-currentFilter="@ViewData["CurrentFilter"]"
+						class="page-link">
+						&laquo;
+					</a>
+				</li>
+				<li class="page-item @nextDisabled">
+					<a asp-action="Index"
+						asp-route-pageNumber="@(Model.PageIndex + 1)"
+						asp-route-currentFilter="@ViewData["CurrentFilter"]"
+						class="page-link">
+						&raquo;	
+					</a>
+				</li>
+			</ul>
+		</div>
+	</div>
+
+
+<script type="text/javascript">
+function like(elem){
+	var recipeId = $(elem).attr("asp-route-id")
+	var data = JSON.stringify(recipeId)
+	$.post(`/Recipes/Like`, {recipeId: recipeId})
+			.done(toggleLikeButton(elem));
+}
+
+function toggleLikeButton(elem){
+	$(elem).toggleClass("press", 1000);
+}
+</script>

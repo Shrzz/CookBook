@@ -24,6 +24,7 @@ builder.Services.AddRazorPages();
 
 builder.Services.AddScoped<RecipeRepository>();
 builder.Services.AddScoped<UserRepository>();
+builder.Services.AddScoped<LikeRepository>();
 builder.Services.AddSingleton<FileManager>(new FileManager(builder.Environment.WebRootPath));
 
 var app = builder.Build();

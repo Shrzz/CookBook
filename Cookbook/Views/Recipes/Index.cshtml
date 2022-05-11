@@ -6,13 +6,16 @@
 			<input type="text" name="SearchString" value="@ViewData["CurrentFilter"]" class="form-control me-sm-2" placeholder="Find a recipe"/>
 			<input type="submit" value="Search" class="btn btn-secondary my-2 my-sm-0">		
 		</form>
-		@if (ViewData["CurrentFilter"] != null){
+		@if (ViewData["CurrentFilter"] != null)
+		{
 			<a asp-action="Index">Clear search</a>
 		}
 	</div>
 
+
 	@foreach (var item in Model)
 	{
+		var likeButtonClass = item.Liked ? "button-like press" : "button-like";
 		<div class="list-group mb-2 ">						
 			<div class="d-flex justify-content-between list-group-item list-group-item-action" >
 				<div class="d-flex flex-column" style="height:100%">
@@ -22,6 +25,9 @@
 						<small class="text-secondary">@item.CreationTimeFormattedString</small>
 						<p class="mb-1">@item.Description</p>	
 					</a>
+					 <div asp-route-id="@item.Id" class="@likeButtonClass" onclick="like(this)">
+						like
+					</div>
 				</div>
 				<div class="justify-content-end" style="max-width:100px">
 					@if (@item.Image != null){
@@ -31,7 +37,6 @@
 				</div>
 			</div>
 		</div>	
-
 	}
 
 	@{
@@ -60,3 +65,16 @@
 		</ul>
 	</div>
 </div>
+
+<script type="text/javascript">
+	function like(elem){
+		var recipeId = $(elem).attr("asp-route-id")
+		var data = JSON.stringify(recipeId)
+		$.post(`/Recipes/Like`, {recipeId: recipeId})
+				.done(toggleLikeButton(elem));
+	}
+
+	function toggleLikeButton(elem){
+		$(elem).toggleClass("press", 1000);
+	}
+</script>

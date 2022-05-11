@@ -8,13 +8,14 @@
         public string CreationTimeFormattedString { get; set; }
         public string AuthorName { get; set; }
         public FileInfo? Image { get; set; }
+        public bool Liked { get; set; }
 
         public RecipeIndexModel()
         {
             CreationTimeFormattedString = FormatDateTime(DateTime.Now);
         }
 
-        public RecipeIndexModel(int id, string title, string description, DateTime creationTime, string authorName, FileInfo image)
+        public RecipeIndexModel(int id, string title, string description, DateTime creationTime, string authorName, FileInfo image, bool liked)
         {
             Id = id;
             Title = title;
@@ -22,6 +23,7 @@
             CreationTimeFormattedString = FormatDateTime(creationTime);
             AuthorName = authorName;
             Image = image;
+            Liked = liked;
         }
 
         private string FormatDateTime(DateTime creationTime)

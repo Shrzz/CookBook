@@ -12,6 +12,8 @@ namespace Cookbook.Data
     {
         public DbSet<Recipe> Recipes { get; set; }
         public DbSet<ApplicationUser> Users { get; set; }
+        public DbSet<Like> Likes { get; set; }
+
         public ApplicationDbContext()
         {
         }
@@ -27,6 +29,9 @@ namespace Cookbook.Data
             //builder.Entity<Applica>().ToTable();
 
             //builder.Entity<Recipe>().HasData(new );
+
+            builder.Entity<Like>().
+                HasKey(l => new { l.UserId, l.RecipeId });
 
             builder.Entity<Recipe>().Property(p => p.Steps).HasConversion(
                 value => JsonConvert.SerializeObject(value, new JsonSerializerSettings()),
