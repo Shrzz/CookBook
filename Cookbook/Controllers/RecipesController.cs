@@ -212,7 +212,7 @@ namespace Cookbook.Controllers
             var list = new List<RecipeIndexModel>();
             foreach (var recipe in recipes)
             {
-                bool isLiked = _likeRepository.IsLikedByUser(user.Id, recipe.Id);
+                bool isLiked = user == null ? false : _likeRepository.IsLikedByUser(user.Id, recipe.Id);
                 var image = _fileManager.GetSingleImageFromDirectory(recipe.ImagesDirectory);
                 var r = new RecipeIndexModel(recipe.Id, recipe.Title, recipe.Description, recipe.CreationTime, recipe.Author.UserName, image, isLiked);
                 list.Add(r);
@@ -245,8 +245,17 @@ namespace Cookbook.Controllers
 
         private ApplicationUser GetCurrentUser()
         {
-            int userId = int.Parse(base.User.FindFirstValue(ClaimTypes.NameIdentifier));
-            ApplicationUser user = _userRepository.GetById(userId);
+            ApplicationUser user = null;
+            try
+            {
+                int userId = int.Parse(base.User.FindFirstValue(ClaimTypes.NameIdentifier));
+                user = _userRepository.GetById(userId);
+                return user;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
 
             return user;
         }

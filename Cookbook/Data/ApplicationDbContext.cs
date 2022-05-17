@@ -26,9 +26,6 @@ namespace Cookbook.Data
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
-            //builder.Entity<Applica>().ToTable();
-
-            //builder.Entity<Recipe>().HasData(new );
 
             builder.Entity<Like>().
                 HasKey(l => new { l.UserId, l.RecipeId });
